@@ -1,3 +1,6 @@
+#! /usr/bin/env python3 
+##-*- coding: utf-8 -*-
+
 import wx
 from auto_input_core import start_auto_input
 from auto_input_core import test

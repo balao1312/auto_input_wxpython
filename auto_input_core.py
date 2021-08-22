@@ -1,15 +1,12 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import threading
 import pyautogui
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
-import subprocess
-
-
-def copy_osx(text):
-    p = subprocess.Popen(['pbcopy', 'w'],
-                         stdin=subprocess.PIPE, close_fds=True)
-    p.communicate(input=text.encode('utf-8'))
+import pyperclip
 
 
 def test():
@@ -26,14 +23,14 @@ def start_auto_input(content, send_time, repeat_time):
     print('-' * 50)
 
     t = threading.current_thread()
-    print('start auto input ...')
-    copy_osx(content)
+    print('start session ...')
+    pyperclip.copy(content)
     sleep(1)
 
     # init pyautogui for later use for no preloading time.
-    pyautogui.press('shift')
+    pyautogui.press('ctrl')
     sleep(0.1)
-    pyautogui.press('shift')
+    pyautogui.press('ctrl')
 
     count = 0
     while getattr(t, 'do_run', True):
