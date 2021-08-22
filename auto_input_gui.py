@@ -59,7 +59,6 @@ class Auto_Input(wx.Frame):
         self.button.Bind(wx.EVT_BUTTON, self.OnButtonClicked)
 
         self.SetSize((500, 250))
-        self.SetTitle('自動輸入文字工具')
         self.Centre()
 
     def OnQuit(self, e):
@@ -96,7 +95,7 @@ class Auto_Input(wx.Frame):
 
 def main():
     app = wx.App()
-    ex = Auto_Input(None, title='Review')
+    ex = Auto_Input(None, title='自動輸入文字工具')
     ex.Show()
     app.MainLoop()
 
