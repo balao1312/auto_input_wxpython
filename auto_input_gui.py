@@ -8,7 +8,6 @@ import threading
 from time import sleep
 from datetime import timedelta
 import datetime
-import pprint
 import os
 import sys
 import pickle
@@ -82,11 +81,11 @@ class Auto_Input(wx.Frame):
         # -------------------------------------------------------------
 
         # horizontal section
-        fgs_button = wx.FlexGridSizer(1, 4, 115, 25)
+        fgs_button = wx.FlexGridSizer(1, 2, 115, 25)
 
         # get time button
-        self.button_get_default = wx.Button(panel, wx.ID_ANY, label="輸入範本")
-        self.button_get_default.Bind(wx.EVT_BUTTON, self.get_default)
+        # self.button_get_default = wx.Button(panel, wx.ID_ANY, label="輸入範本")
+        # self.button_get_default.Bind(wx.EVT_BUTTON, self.get_default)
 
         # start button
         self.button_start = wx.Button(panel, wx.ID_ANY, label="開始執行")
@@ -101,7 +100,7 @@ class Auto_Input(wx.Frame):
         # self.button_test.Bind(wx.EVT_BUTTON, self.OnButtonClicked_test_with_fixed_value)
 
         fgs_button.AddMany(
-            [(self.button_get_default), (self.button_start,), (self.button_stop)]
+            [(self.button_start,), (self.button_stop)]
         )
         # -------------------------------------------------------------
 
@@ -133,14 +132,14 @@ class Auto_Input(wx.Frame):
             self.th.do_run = False
         except:
             pass
-
+        
         values = {
             'ct_1': self.tc_content_1.GetValue(),
             'ct_2': self.tc_content_2.GetValue(),
             'ct_3': self.tc_content_3.GetValue(),
-            'send_time': self.tc_send_time.GetLabel(),
-            'delay': self.tc_delay.GetLabel(),
-            'repeat': self.tc_repeat_time.GetLabel()
+            'send_time': self.tc_send_time.GetValue(),
+            'delay': self.tc_delay.GetValue(),
+            'repeat': self.tc_repeat_time.GetValue()
         }
 
         with open(f'{self.application_path}/auto_input_saved_values', 'wb') as f:
@@ -159,7 +158,6 @@ class Auto_Input(wx.Frame):
             if locals()[f'content_{i}'] != '':
                 content_list.append(locals()[f'content_{i}'])
 
-        print(content_list)
         if not content_list:
             self.output.SetLabel('錯誤：資料欄位-送出文字皆空白')
             return False
