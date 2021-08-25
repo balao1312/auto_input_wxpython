@@ -9,14 +9,22 @@ from time import sleep
 from datetime import timedelta
 import datetime
 import pprint
+import os
+import sys
+import pickle
 
 
 class Auto_Input(wx.Frame):
     is_running = False
 
+    # /Users/balao1312/Github/auto_input_wxpython/venv/bin
+    application_path = os.path.dirname(sys.executable)
+
     try:
-        from auto_input_save import values
-        print('==> find previous values.')
+        with open(f'{application_path}/auto_input_saved_values', 'rb') as f:
+            print('==> find previous values.')
+            # print(f.read())
+            values = pickle.load(f)
     except:
         pass
 
@@ -24,7 +32,6 @@ class Auto_Input(wx.Frame):
         super(Auto_Input, self).__init__(parent, title=title)
 
         self.InitUI()
-        sleep(1)
         self.try_load_save()
         self.Centre()
         self.Show()
@@ -133,10 +140,11 @@ class Auto_Input(wx.Frame):
             'ct_3': self.tc_content_3.GetValue(),
             'send_time': self.tc_send_time.GetLabel(),
             'delay': self.tc_delay.GetLabel(),
-            'repeat': self.tc_repeat_time.GetLabel() 
+            'repeat': self.tc_repeat_time.GetLabel()
         }
-        with open('auto_input_save.py', 'w') as f:
-            f.write(f'values = {pprint.pformat(values)}')
+
+        with open(f'{self.application_path}/auto_input_saved_values', 'wb') as f:
+            pickle.dump(values, f)
 
         self.Close()
 
@@ -269,15 +277,18 @@ class Auto_Input(wx.Frame):
         self.tc_repeat_time.SetLabel('3')
 
     def try_load_save(self):
-        if self.values:
+        try:
+            self.values
             print(self.values)
             # format: {'ct_1': '', 'ct_2': '', 'ct_3': '', 'delay': '', 'repeat': '', 'send_time': ''}
             self.tc_content_1.AppendText(self.values['ct_1'])
             self.tc_content_2.AppendText(self.values['ct_2'])
-            self.tc_content_3.AppendText(self.values['ct_3'])           
-            self.tc_send_time.SetLabel(self.values['send_time'])           
-            self.tc_delay.SetLabel(self.values['delay'])           
-            self.tc_repeat_time.SetLabel(self.values['repeat'])           
+            self.tc_content_3.AppendText(self.values['ct_3'])
+            self.tc_send_time.SetLabel(self.values['send_time'])
+            self.tc_delay.SetLabel(self.values['delay'])
+            self.tc_repeat_time.SetLabel(self.values['repeat'])
+        except:
+            pass
 
 
 def main():
