@@ -8,15 +8,24 @@ import threading
 from time import sleep
 from datetime import timedelta
 import datetime
+import pprint
 
 
 class Auto_Input(wx.Frame):
     is_running = False
 
+    try:
+        from auto_input_save import values
+        print('==> find previous values.')
+    except:
+        pass
+
     def __init__(self, parent, title):
         super(Auto_Input, self).__init__(parent, title=title)
 
         self.InitUI()
+        sleep(1)
+        self.try_load_save()
         self.Centre()
         self.Show()
 
@@ -101,8 +110,10 @@ class Auto_Input(wx.Frame):
         # come to mommy
         vbox = wx.BoxSizer(wx.VERTICAL)
         vbox.Add(fgs, proportion=1, flag=wx.ALL | wx.EXPAND, border=15)
-        vbox.Add(fgs_button, proportion=1, flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=15)
-        vbox.Add(fgs_output, proportion=1, flag=wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, border=15)
+        vbox.Add(fgs_button, proportion=1, flag=wx.ALL |
+                 wx.ALIGN_CENTER_HORIZONTAL, border=15)
+        vbox.Add(fgs_output, proportion=1, flag=wx.ALL |
+                 wx.ALIGN_CENTER_HORIZONTAL, border=15)
         panel.SetSizer(vbox)
 
         # output section
@@ -115,6 +126,18 @@ class Auto_Input(wx.Frame):
             self.th.do_run = False
         except:
             pass
+
+        values = {
+            'ct_1': self.tc_content_1.GetValue(),
+            'ct_2': self.tc_content_2.GetValue(),
+            'ct_3': self.tc_content_3.GetValue(),
+            'send_time': self.tc_send_time.GetLabel(),
+            'delay': self.tc_delay.GetLabel(),
+            'repeat': self.tc_repeat_time.GetLabel() 
+        }
+        with open('auto_input_save.py', 'w') as f:
+            f.write(f'values = {pprint.pformat(values)}')
+
         self.Close()
 
     def validate_input(self):
@@ -124,9 +147,9 @@ class Auto_Input(wx.Frame):
         content_2 = self.tc_content_2.GetValue()
         content_3 = self.tc_content_3.GetValue()
 
-        for i in range(1,4):
+        for i in range(1, 4):
             if locals()[f'content_{i}'] != '':
-                content_list.append(locals()[f'content_{i}'] )
+                content_list.append(locals()[f'content_{i}'])
 
         print(content_list)
         if not content_list:
@@ -230,7 +253,7 @@ class Auto_Input(wx.Frame):
                     pass
                 break
             sleep(1)
-    
+
     def get_default(self, event):
         self.tc_content_1.SetValue('')
         self.tc_content_1.AppendText('1.1\n1.2\n1.3')
@@ -239,10 +262,22 @@ class Auto_Input(wx.Frame):
         self.tc_content_3.SetValue('')
         self.tc_content_3.AppendText('3.1\n3.2\n3.3')
 
-        example_time = (datetime.datetime.now() + timedelta(seconds=10)).strftime("%Y-%m-%d %H:%M:%S")
+        example_time = (datetime.datetime.now() +
+                        timedelta(seconds=10)).strftime("%Y-%m-%d %H:%M:%S")
         self.tc_send_time.SetLabel(example_time)
         self.tc_delay.SetLabel('0')
         self.tc_repeat_time.SetLabel('3')
+
+    def try_load_save(self):
+        if self.values:
+            print(self.values)
+            # format: {'ct_1': '', 'ct_2': '', 'ct_3': '', 'delay': '', 'repeat': '', 'send_time': ''}
+            self.tc_content_1.AppendText(self.values['ct_1'])
+            self.tc_content_2.AppendText(self.values['ct_2'])
+            self.tc_content_3.AppendText(self.values['ct_3'])           
+            self.tc_send_time.SetLabel(self.values['send_time'])           
+            self.tc_delay.SetLabel(self.values['delay'])           
+            self.tc_repeat_time.SetLabel(self.values['repeat'])           
 
 
 def main():
