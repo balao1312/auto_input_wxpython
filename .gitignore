@@ -4,3 +4,4 @@ venv
 .vscode
 build
 dist
+auto_input_gui.spec
