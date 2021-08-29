@@ -6,7 +6,7 @@ import pyautogui
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
-import pyperclip
+import os
 
 
 def test():
@@ -27,37 +27,34 @@ def start_auto_input(content_list, send_time, repeat_time):
 
     print('start session ...')
 
-    # msg format
-    # pyperclip.copy(content_1)
-    # sleep(1)
-
     # init pyautogui for later use for no preloading time.
     pyautogui.press('ctrl')
     sleep(0.1)
     pyautogui.press('ctrl')
 
-    count = 0
+    buffer_time = timedelta(seconds=2)
     while getattr(t, 'do_run', True):
-        count += 1
-        print('loop checkpoint, seq=', count)
+        print('seconds left: ', (send_time - datetime.now()).seconds)
 
-        # standby at applied_time - 3s
-        buffer_time = timedelta(seconds=3)
+        # standby at applied_time - 2s
         if send_time - datetime.now() < buffer_time:
             while 1:
                 if datetime.now() > send_time:
                     for _ in range(repeat_time):
-                        # press_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-                        for each in content_list:
-                            pyperclip.copy(each)
-                            pyautogui.hotkey('command', 'v', interval=0.015)
+                        for index, each in enumerate(content_list, start=1):
+                            print('sending msg: ', index, 'content: ', each)
+                            os.system(f'echo $"{each}" | pbcopy')
+                            pyautogui.hotkey('command', 'v', interval=0.02)
                             pyautogui.press('enter')
-                        # sent_done_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-                        # print(
-                            # f'pressed enter at {press_time}, sent at {sent_done_time}')
-                    break
-            break
-
+                    print('Session end, enter standby.')
+                    return 0
         sleep(1)
 
-    print('Session end, enter standby.')
+if __name__ == "__main__":
+    # send_time = datetime.now() + timedelta(seconds=5)
+    send_time = datetime(2021, 8, 29, 22, 39, 0)
+    print('target time: ', send_time)
+    start_auto_input(['測試一之一\n測試一之二', 'tt2', 'tt3'], send_time, 1)
+
+
+
