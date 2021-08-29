@@ -13,7 +13,7 @@ import sys
 import pickle
 
 
-class Auto_Input(wx.Frame):
+class MainFrame(wx.Frame):
     is_running = False
 
     # /Users/balao1312/Github/auto_input_wxpython/venv/bin
@@ -22,13 +22,12 @@ class Auto_Input(wx.Frame):
     try:
         with open(f'{application_path}/auto_input_saved_values', 'rb') as f:
             print('==> find previous values.')
-            # print(f.read())
             values = pickle.load(f)
     except:
         pass
 
     def __init__(self, parent, title):
-        super(Auto_Input, self).__init__(parent, title=title)
+        super(MainFrame, self).__init__(parent, title=title)
 
         self.InitUI()
         self.try_load_save()
@@ -41,6 +40,7 @@ class Auto_Input(wx.Frame):
         fileItem = fileMenu.Append(wx.ID_EXIT, 'Quit', 'Quit application')
 
         self.Bind(wx.EVT_MENU, self.OnQuit, fileItem)
+        self.Bind(wx.EVT_CLOSE, self.OnQuit)
 
         menubar = wx.MenuBar()
         menubar.Append(fileMenu, '&File')
@@ -132,7 +132,7 @@ class Auto_Input(wx.Frame):
             self.th.do_run = False
         except:
             pass
-        
+
         values = {
             'ct_1': self.tc_content_1.GetValue(),
             'ct_2': self.tc_content_2.GetValue(),
@@ -145,7 +145,8 @@ class Auto_Input(wx.Frame):
         with open(f'{self.application_path}/auto_input_saved_values', 'wb') as f:
             pickle.dump(values, f)
 
-        self.Close()
+        print('==> Column values saved.')
+        self.Destroy()
 
     def validate_input(self):
         content_list = []
@@ -206,6 +207,10 @@ class Auto_Input(wx.Frame):
         return (content_list, send_time, repeat_time)
 
     def start_button_pressed(self, e):
+        if self.is_running:
+            print('==> Already running.')
+            return
+
         if self.validate_input():
             content, sendtime, repeat_time = self.validate_input()
             self.confirm_msg = f'送出內容： {content}\n' \
@@ -219,20 +224,22 @@ class Auto_Input(wx.Frame):
 
         # fire up
         self.th = threading.Thread(
-            target=start_auto_input, args=(content, sendtime, repeat_time))
+            target=start_auto_input, args=(content, sendtime, repeat_time, self), daemon=True)
         self.th.start()
-
-        self.th_check_done = threading.Thread(
-            target=self.check_done, args=())
-        self.th_check_done.start()
 
         self.is_running = True
 
     def stop_button_pressed(self, e):
         try:
             self.th.do_run = False
-        except:
-            pass
+            print('==> Thread exists, try stopping.')
+            sleep(1)
+            del self.th
+            print('==> Thread deleted.')
+        except Exception as e:
+            print(e.__class__, e)
+
+        
         self.output.SetLabel('已停止')
         self.is_running = False
 
@@ -245,20 +252,6 @@ class Auto_Input(wx.Frame):
         self.th_check_done = threading.Thread(
             target=self.check_done, args=())
         self.th_check_done.start()
-
-    def check_done(self):
-        while 1:
-            if not self.th.is_alive():
-                self.confirm_msg += f'\n{"-"*50}'
-                self.confirm_msg += '\n完成送出!'
-                try:
-                    if self.is_running:
-                        self.output.SetLabel(self.confirm_msg)
-                    self.is_running = False
-                except:
-                    pass
-                break
-            sleep(1)
 
     def get_default(self, event):
         self.tc_content_1.SetValue('')
@@ -291,7 +284,7 @@ class Auto_Input(wx.Frame):
 
 def main():
     app = wx.App()
-    ex = Auto_Input(None, title='自動輸入文字工具')
+    ex = MainFrame(None, title='自動輸入文字工具')
     ex.Show()
     app.MainLoop()
 
