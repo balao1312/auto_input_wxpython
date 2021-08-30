@@ -50,7 +50,7 @@ def start_auto_input(content_list, send_time, repeat_time, frame):
                     for _ in range(repeat_time):
                         for index, each in enumerate(content_list, start=1):
                             print('sending msg: ', index, 'content: ', each)
-                            os.system(f'echo $"{each}" | pbcopy')
+                            os.system(f'echo $"{each}" | LANG=en_US.UTF-8 pbcopy')
                             pyautogui.hotkey('command', 'v', interval=0.02)
                             pyautogui.press('enter')
 

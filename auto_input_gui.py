@@ -8,23 +8,18 @@ import threading
 from time import sleep
 from datetime import timedelta
 import datetime
-import os
+import json
+from pathlib import Path
 import sys
-import pickle
+
+sys.stdout.reconfigure(encoding='utf-8')
 
 
 class MainFrame(wx.Frame):
     is_running = False
 
-    # /Users/balao1312/Github/auto_input_wxpython/venv/bin
-    application_path = os.path.dirname(sys.executable)
-
-    try:
-        with open(f'{application_path}/auto_input_saved_values', 'rb') as f:
-            print('==> find previous values.')
-            values = pickle.load(f)
-    except:
-        pass
+    saved_data = Path.home().joinpath('.auto_input_data')
+    error_log = Path.home().joinpath('.auto_input_error_log')
 
     def __init__(self, parent, title):
         super(MainFrame, self).__init__(parent, title=title)
@@ -142,8 +137,10 @@ class MainFrame(wx.Frame):
             'repeat': self.tc_repeat_time.GetValue()
         }
 
-        with open(f'{self.application_path}/auto_input_saved_values', 'wb') as f:
-            pickle.dump(values, f)
+        # with open(f'{self.application_path}/.auto_input_data', 'wb') as f:
+        #     pickle.dump(values, f)
+
+        json.dump(values, open(self.saved_data, 'w', encoding='utf-8'))
 
         print('==> Column values saved.')
         self.Destroy()
@@ -239,7 +236,6 @@ class MainFrame(wx.Frame):
         except Exception as e:
             print(e.__class__, e)
 
-        
         self.output.SetLabel('已停止')
         self.is_running = False
 
@@ -269,6 +265,15 @@ class MainFrame(wx.Frame):
 
     def try_load_save(self):
         try:
+            self.values = json.load(
+                open(self.saved_data, 'r', encoding='utf-8'))
+            print('==> find previous values.')
+        except Exception as e:
+            print(f'{sys._getframe().f_code.co_name}, {e.__class__}: {e}')
+            with open(self.error_log, 'a') as f:
+                f.write(f'{sys._getframe().f_code.co_name}, {e.__class__}: {e}')
+
+        try:
             self.values
             print(self.values)
             # format: {'ct_1': '', 'ct_2': '', 'ct_3': '', 'delay': '', 'repeat': '', 'send_time': ''}
@@ -278,8 +283,10 @@ class MainFrame(wx.Frame):
             self.tc_send_time.SetLabel(self.values['send_time'])
             self.tc_delay.SetLabel(self.values['delay'])
             self.tc_repeat_time.SetLabel(self.values['repeat'])
-        except:
-            pass
+        except Exception as e:
+            print(f'{sys._getframe().f_code.co_name}, {e.__class__}: {e}')
+            with open(self.error_log, 'a') as f:
+                f.write(f'{sys._getframe().f_code.co_name}, {e.__class__}: {e}')
 
 
 def main():
