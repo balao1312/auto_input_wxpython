@@ -43,7 +43,7 @@ def start_auto_input(content_list, send_time, repeat_time, frame):
 
         if send_time - datetime.now() < buffer_time:
             print('==> Standby ...')
-            pyautogui.hotkey('command', 'tab', interval=0.1)
+            # pyautogui.hotkey('command', 'tab', interval=0.1)
             while 1:
                 if datetime.now() > send_time:
                     print('==> Time\'s up! Start to send ...')
@@ -60,7 +60,7 @@ def start_auto_input(content_list, send_time, repeat_time, frame):
 
                     print('==> Session end.')
                     frame.is_running = False
-                    pyautogui.hotkey('command', 'tab', interval=0.1)
+                    # pyautogui.hotkey('command', 'tab', interval=0.1)
                     return
 
         sleep(1)
