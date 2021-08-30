@@ -16,13 +16,13 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 
 class MainFrame(wx.Frame):
-    is_running = False
-
-    saved_data = Path.home().joinpath('.auto_input_data')
-    error_log = Path.home().joinpath('.auto_input_error_log')
-
     def __init__(self, parent, title):
         super(MainFrame, self).__init__(parent, title=title)
+
+        self.is_running = False
+
+        self.saved_data = Path.home().joinpath('.auto_input_data')
+        self.error_log = Path.home().joinpath('.auto_input_error_log')
 
         self.InitUI()
         self.try_load_save()
